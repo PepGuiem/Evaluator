@@ -13,13 +13,9 @@ public class Evaluator {
         Stack<Token> operadors = new Stack<>();
         List<Token> nombres = new ArrayList<>();
         boolean posicioOp = false;
-        char car = ' ';
+
 
         for (int i = 0; i < tokens.length; i++) {
-
-            if (tokens[i].getTtype() != Token.Toktype.NUMBER) {
-                car = tokens[i].getTk();
-            }
 
             if (tokens[i].getTtype() == Token.Toktype.NUMBER){
                 nombres.add(tokens[i]);
@@ -34,22 +30,13 @@ public class Evaluator {
 
             if (tokens[i].getTtype() == Token.Toktype.OP){
                 operadors.add(tokens[i]);
-                if (tokens[i].getTk() == '/' && tokens.length-1 > i+2 && 2 >= jerarquia(tokens[i+2].getTk())){
-                    posicioOp = true;
-                } else if (tokens[i].getTk() == '*' && tokens.length-1 > i+2 && 2 >= jerarquia(tokens[i+2].getTk())) {
-                    posicioOp = true;
-                } else if (tokens[i].getTk() == '-' && tokens.length-1 > i+2 && 1 == jerarquia(tokens[i+2].getTk())) {
-                    posicioOp = true;
-                } else if (tokens[i].getTk() == '+' && tokens.length-1 > i+2 && 1 == jerarquia(tokens[i+2].getTk())) {
-                    posicioOp = true;
-                }
+                posicioOp = prioritats(tokens, posicioOp, i);
+            } else if (tokens[i].getTtype() == Token.Toktype.PAREN){
+
             }
+
         }
-
-        Token temp;
-
         while (operadors.iterator().hasNext()) {
-            int pos = nombres.size();
             nombres.add(operadors.pop());
         }
 
@@ -63,16 +50,29 @@ public class Evaluator {
         return resultat;
     }
 
+    private static boolean prioritats(Token[] tokens, boolean posicioOp, int i) {
+        if (tokens[i].getTk() == '/' && tokens.length-1 > i +2 && 2 >= jerarquia(tokens[i +2].getTk())){
+            posicioOp = true;
+        } else if (tokens[i].getTk() == '*' && tokens.length-1 > i +2 && 2 >= jerarquia(tokens[i +2].getTk())) {
+            posicioOp = true;
+        } else if (tokens[i].getTk() == '-' && tokens.length-1 > i +2 && 1 == jerarquia(tokens[i +2].getTk())) {
+            posicioOp = true;
+        } else if (tokens[i].getTk() == '+' && tokens.length-1 > i +2 && 1 == jerarquia(tokens[i +2].getTk())) {
+            posicioOp = true;
+        }
+        return posicioOp;
+    }
+
     private static int jerarquia(char car){
         switch (car){
             case '+':
             case '-':
-                return 1;
+                return 1 ;
             case '*':
             case '/':
-                return 2;
+                return 2 ;
             case '^':
-                return 3;
+                return 3 ;
         }
         return -1;
     }
