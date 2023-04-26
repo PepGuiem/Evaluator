@@ -14,8 +14,8 @@ public class Evaluator {
         int posParen = 0;
         for (int i = 0; i < tokens.length; i++) {
             if (tokens[i].getTtype() == Token.Toktype.NUMBER) {
-                nombres.add(tokens[i]);
-                posicioOp = afegirOperadorsPerOrdreDeJerarquia(tokens, operadors, nombres, posicioOp, i);
+                    nombres.add(tokens[i]);
+                    posicioOp = afegirOperadorsPerOrdreDeJerarquia(tokens, operadors, nombres, posicioOp, i);
             }else if (tokens[i].getTtype() == Token.Toktype.OP) {
                 operadors.add(tokens[i]);
                 posicioOp = prioritats(tokens, i);
@@ -90,6 +90,7 @@ public class Evaluator {
         } else return teMajorJerarquiaQueElAnterior(tokens, i, 1, '+');
     }
 
+
     private static boolean teMajorJerarquiaQueElAnterior(Token[] tokens, int i, int j, char character) {
         return tokens[i].getTk() == character && tokens.length - 1 > i + 2
                 && j >= jerarquia(tokens[i + 2].getTk());
@@ -112,15 +113,9 @@ public class Evaluator {
             if (token.getTtype() == Token.Toktype.NUMBER) {
                 pilaDeNombres.add(token.getValue());
             } else {
-                if (token.getTk() == '-' && pilaDeNombres.size() == 1){
-                    int num1 = -1;
-                    int num2 = pilaDeNombres.pop();
-                    pilaDeNombres.add(operacio('*', num2, num1));
-                }else {
                     int num1 = pilaDeNombres.pop();
                     int num2 = pilaDeNombres.pop();
                     pilaDeNombres.add(operacio(token.getTk(), num2, num1));
-                }
             }
 
             if (list.length == 1) {
