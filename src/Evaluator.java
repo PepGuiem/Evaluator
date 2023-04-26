@@ -13,6 +13,7 @@ public class Evaluator {
         Stack<Token> operadors = new Stack<>();
         List<Token> nombres = new ArrayList<>();
         boolean posicioOp = false;
+        int posicioPare = 0;
 
 
         for (int i = 0; i < tokens.length; i++) {
@@ -23,17 +24,26 @@ public class Evaluator {
                     while (operadors.iterator().hasNext() &&  tokens.length-1 > i+1 &&
                             jerarquia(operadors.peek().getTk()) >= jerarquia(tokens[i+1].getTk())) {
                         nombres.add(operadors.pop());
-                        posicioOp = false;
                     }
+                    posicioOp = false;
                 }
             }
-
             if (tokens[i].getTtype() == Token.Toktype.OP){
                 operadors.add(tokens[i]);
                 posicioOp = prioritats(tokens, posicioOp, i);
             } else if (tokens[i].getTtype() == Token.Toktype.PAREN){
-
+                if(tokens[i].getTk() == '('){
+                    posicioPare++;
+                }
+                if(tokens[i].getTk() == ')'){
+                    posicioPare--;
+                }
+                if (posicioPare == 0) posicioOp = false;
             }
+            if (posicioPare > 0){
+                posicioOp = true;
+            }
+
 
         }
         while (operadors.iterator().hasNext()) {
