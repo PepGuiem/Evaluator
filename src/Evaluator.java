@@ -37,7 +37,8 @@ public class Evaluator {
     private static int afegirValorsDeParen(Token[] tokens, Stack<Token> operadors, List<Token> nombres, int posParen, int i) {
         boolean opDevantParen;
         posParen = aconseguirPosParen(tokens, posParen, i);
-        opDevantParen = (i != 0 && tokens[posParen].getTtype() == Token.Toktype.OP);
+        opDevantParen = (i != 0 && tokens[posParen].getTtype() == Token.Toktype.OP && i + 1 < tokens.length
+                && jerarquia(tokens[posParen].getTk()) >= jerarquia(tokens[i + 1].getTk()));
         colocarPrioritatParen(tokens, operadors, nombres, opDevantParen, i);
         return posParen;
     }
