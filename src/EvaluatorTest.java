@@ -87,8 +87,9 @@ public class EvaluatorTest {
     public void tests_potencia() {
         assertEquals(8, Evaluator.calculate("2^3"));
         assertEquals(81, Evaluator.calculate("3^(3+1)"));
-        //assertEquals(-2, Evaluator.calculate("-2^1"));
+        assertEquals(-2, Evaluator.calculate("-2^1"));
         assertEquals(-135, Evaluator.calculate("8+5-7^2-98-(2-1)^(5-2)"));
+        assertEquals(-2658, Evaluator.calculate("2+3+2+1^4-2*11^3-2^(9*6-50)+12"));
         assertEquals(-264589, Evaluator.calculate("2+3+2+1^4-2*11^3-2^(9*6-50)+12^2+9^2-(-1+5)^(2*4-(1-2))"));
     }
 }

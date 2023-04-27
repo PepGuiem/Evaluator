@@ -34,11 +34,13 @@ public class Evaluator {
         return calcRPN(nombres.toArray(new Token[0]));
     }
 
-    private static int afegirValorsDeParen(Token[] tokens, Stack<Token> operadors, List<Token> nombres, int posParen, int i) {
+    private static int afegirValorsDeParen(Token[] tokens, Stack<Token> operadors, List<Token> nombres,
+                                           int posParen, int i) {
         boolean opDevantParen;
         posParen = aconseguirPosParen(tokens, posParen, i);
-        opDevantParen = (i != 0 && tokens[posParen].getTtype() == Token.Toktype.OP && i + 1 < tokens.length
-                && jerarquia(tokens[posParen].getTk()) >= jerarquia(tokens[i + 1].getTk()));
+            opDevantParen = (i != 0 && tokens[posParen].getTtype() == Token.Toktype.OP &&
+                    i + 1 < tokens.length &&
+                    jerarquia(tokens[posParen].getTk()) >= jerarquia(tokens[i + 1].getTk()));
         colocarPrioritatParen(tokens, operadors, nombres, opDevantParen, i);
         return posParen;
     }
@@ -68,7 +70,9 @@ public class Evaluator {
             }
             operadors.pop();
             if (opDevantParen) {
-                nombres.add(operadors.pop());
+                while (teJerarquiaMajor(tokens, operadors, i)) {
+                    nombres.add(operadors.pop());
+                }
             }
         }
     }
@@ -80,7 +84,9 @@ public class Evaluator {
     }
 
     private static boolean prioritats(Token[] tokens, int i) {
-        if (tokens[i].getTk() == '^'){
+        if (tokens[i].getTk() == '!'){
+            return true;
+        }else if (teMajorJerarquiaQueElAnterior(tokens, i, 3,'^')){
             return true;
         }else if (teMajorJerarquiaQueElAnterior(tokens, i, 2,'/')) {
             return true;
@@ -92,9 +98,10 @@ public class Evaluator {
     }
 
 
-    private static boolean teMajorJerarquiaQueElAnterior(Token[] tokens, int i, int j, char character) {
+    private static boolean teMajorJerarquiaQueElAnterior(Token[] tokens, int i, int nivellJerarquia,
+                                                         char character) {
         return tokens[i].getTk() == character && tokens.length - 1 > i + 2
-                && j >= jerarquia(tokens[i + 2].getTk());
+                && nivellJerarquia >= jerarquia(tokens[i + 2].getTk());
     }
 
     private static int jerarquia(char car) {
@@ -102,6 +109,7 @@ public class Evaluator {
             case '+', '-' -> 1;
             case '*', '/' -> 2;
             case '^' -> 3;
+            case '!' -> 4;
             default -> -1;
         };
     }
@@ -114,11 +122,15 @@ public class Evaluator {
             if (token.getTtype() == Token.Toktype.NUMBER) {
                 pilaDeNombres.add(token.getValue());
             } else {
+                if (token.getTk() == '!'){
+                    int num2 = pilaDeNombres.pop();
+                    pilaDeNombres.add(operacio('*', num2, -1));
+                }else {
                     int num1 = pilaDeNombres.pop();
                     int num2 = pilaDeNombres.pop();
                     pilaDeNombres.add(operacio(token.getTk(), num2, num1));
+                }
             }
-
             if (list.length == 1) {
                 break;
             }
@@ -136,6 +148,5 @@ public class Evaluator {
             default -> 0;
         };
     }
-
 
 }

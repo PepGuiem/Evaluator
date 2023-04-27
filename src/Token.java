@@ -119,7 +119,7 @@ public class Token {
         //Fem un bucle que sira la longitud del string.
         for (int i = 0; i < expr.length(); i++) {
             //Si el character on som és un nombre.
-            if (expr.charAt(i) - 48 >= 0 && expr.charAt(i) - 48 <= 9 && expr.charAt(i) != ' ') {
+            if (expr.charAt(i) - '0' >= 0 && expr.charAt(i) - '0' <= 9 && expr.charAt(i) != ' ') {
                 //El anam sumant al string.
                 nombresEnString = nombresEnString + expr.charAt(i);
                 //Si és un parenthesis.
@@ -144,8 +144,22 @@ public class Token {
                     nombresEnString = "";
                 }
 
-                //I afegim l'operador a la llista.
-                llistaTokens.add(tokOp(expr.charAt(i)));
+                if (expr.charAt(i) == '-'){
+                    if (i == 0){
+                        llistaTokens.add(tokOp('!'));
+                    }else if (llistaTokens.get(llistaTokens.size()-1).getTtype() == Toktype.OP && expr.charAt(i+1) == '('){
+                        llistaTokens.add(tokOp('!'));
+                    }else if (llistaTokens.get(llistaTokens.size()-1).getTtype() != Toktype.NUMBER && expr.charAt(i+1) - '0' >= 0
+                            && expr.charAt(i+1) - '0' <= 9 && llistaTokens.get(llistaTokens.size()-1).getTk() != ')'){
+                        llistaTokens.add(tokOp('!'));
+                    }else{
+                        llistaTokens.add(tokOp(expr.charAt(i)));
+                    }
+                }else{
+                    //I afegim l'operador a la llista.
+                    llistaTokens.add(tokOp(expr.charAt(i)));
+                }
+
             }else if (expr.charAt(i) == ' ' && nombresEnString.length() > 0){
                 //Afegim el nombre a la llista.
                 llistaTokens.add(tokNumber(Integer.parseInt(nombresEnString)));
