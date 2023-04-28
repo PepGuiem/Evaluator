@@ -174,16 +174,8 @@ public class Token {
             llistaTokens.add(tokNumber(Integer.parseInt(nombresEnString)));
         }
 
-        //I creem un array per retornar els valors
-        Token[] resultat = new Token[llistaTokens.size()];
-
-
-        //Assignem els valors de la llista al array.
-        for (int i = 0; i < llistaTokens.size(); i++) {
-            resultat[i] = llistaTokens.get(i);
-        }
 
         //I retornem el resultat.
-        return resultat;
+        return llistaTokens.toArray(new Token[0]);
     }
 }

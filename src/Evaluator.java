@@ -5,60 +5,41 @@ import java.util.Stack;
 public class Evaluator {
 
     public static int calculate(String expr) {
-        // Convertim l'string d'entrada en una llista de tokens
+
+        /* Bateria de variables utilitzades per a fer el caculate. */
         Token[] tokens = Token.getTokens(expr);
-        // Efectua el procediment per convertir la llista de tokens en notació RPN
         Stack<Token> operadors = new Stack<>();
         List<Token> nombres = new ArrayList<>();
         boolean posicioOp = false;
         int posParen = 0;
+
+        /* Bucle per a fer la conversio. */
         for (int i = 0; i < tokens.length; i++) {
+
+            /* Si es un nombre. */
             if (tokens[i].getTtype() == Token.Toktype.NUMBER) {
-                    nombres.add(tokens[i]);
-                    posicioOp = afegirOperadorsPerOrdreDeJerarquia(tokens, operadors, nombres, posicioOp, i);
-            }else if (tokens[i].getTtype() == Token.Toktype.OP) {
+                nombres.add(tokens[i]);
+                posicioOp = afegirOperadorsPerOrdreDeJerarquia(tokens, operadors, nombres, posicioOp, i);
+
+                /* Si es un operador. */
+            } else if (tokens[i].getTtype() == Token.Toktype.OP) {
                 operadors.add(tokens[i]);
                 posicioOp = prioritats(tokens, i);
+
+                /* Si es un parentesis. */
             } else if (tokens[i].getTtype() == Token.Toktype.PAREN) {
                 operadors.add(tokens[i]);
                 posParen = afegirValorsDeParen(tokens, operadors, nombres, posParen, i);
             }
         }
-
-        while (operadors.iterator().hasNext()) {
-            nombres.add(operadors.pop());
-        }
-        System.out.println(nombres);
-        // Finalment, crida a calcRPN amb la nova llista de tokens i torna el resultat
-        System.out.println(calcRPN(nombres.toArray(new Token[0])));
+        afegirOperadorsRestants(operadors, nombres);
         return calcRPN(nombres.toArray(new Token[0]));
     }
 
-    private static int afegirValorsDeParen(Token[] tokens, Stack<Token> operadors, List<Token> nombres,
-                                           int posParen, int i) {
-        boolean opDevantParen;
-        posParen = aconseguirPosParen(tokens, posParen, i);
-            opDevantParen = (i != 0 && tokens[posParen].getTtype() == Token.Toktype.OP &&
-                    i + 1 < tokens.length &&
-                    jerarquia(tokens[posParen].getTk()) >= jerarquia(tokens[i + 1].getTk()));
-        colocarPrioritatParen(tokens, operadors, nombres, opDevantParen, i);
-        return posParen;
-    }
-
-    private static boolean afegirOperadorsPerOrdreDeJerarquia(Token[] tokens, Stack<Token> operadors, 
-                                                              List<Token> nombres, boolean posicioOp, int i) {
-        if (posicioOp) {
-            while (teJerarquiaMajor(tokens, operadors, i)) {
-                nombres.add(operadors.pop());
-            }
-            posicioOp = false;
+    private static void afegirOperadorsRestants(Stack<Token> operadors, List<Token> nombres) {
+        while (operadors.iterator().hasNext()) {
+            nombres.add(operadors.pop());
         }
-        return posicioOp;
-    }
-
-    private static int aconseguirPosParen(Token[] tokens, int posParen, int i) {
-        if (i != 0 && tokens[i].getTk() == '(' && tokens[i + 1].getTk() != '(') posParen = i - 1;
-        return posParen;
     }
 
     private static void colocarPrioritatParen(Token[] tokens, Stack<Token> operadors, List<Token> nombres,
@@ -77,31 +58,56 @@ public class Evaluator {
         }
     }
 
+    private static int afegirValorsDeParen(Token[] tokens, Stack<Token> operadors, List<Token> nombres,
+                                           int posParen, int i) {
+        posParen = aconseguirPosParen(tokens, posParen, i);
+        colocarPrioritatParen(tokens, operadors, nombres, siEsOperadorDevantParen(tokens, posParen, i), i);
+        return posParen;
+    }
+
+    private static int aconseguirPosParen(Token[] tokens, int posParen, int i) {
+        return i != 0 && tokens[i].getTk() == '(' && tokens[i + 1].getTk() != '(' ? i - 1 : posParen;
+    }
+
+    private static boolean afegirOperadorsPerOrdreDeJerarquia(Token[] tokens, Stack<Token> operadors,
+                                                              List<Token> nombres, boolean posicioOp, int i) {
+        if (posicioOp) {
+            while (teJerarquiaMajor(tokens, operadors, i)) {
+                nombres.add(operadors.pop());
+            }
+        }
+        return false;
+    }
+
     private static boolean teJerarquiaMajor(Token[] tokens, Stack<Token> operadors, int i) {
         return operadors.iterator().hasNext() && tokens.length - 1 > i + 1 &&
                 jerarquia(operadors.peek().getTk()) >= jerarquia(tokens[i + 1].getTk())
                 && operadors.peek().getTtype() != Token.Toktype.PAREN;
     }
 
+    private static boolean siEsOperadorDevantParen(Token[] tokens, int posParen, int i) {
+        return i != 0 && tokens[posParen].getTtype() == Token.Toktype.OP &&
+                i + 1 < tokens.length && jerarquia(tokens[posParen].getTk()) >= jerarquia(tokens[i + 1].getTk());
+    }
+
     private static boolean prioritats(Token[] tokens, int i) {
-        if (tokens[i].getTk() == '!'){
+        if (tokens[i].getTk() == '!') {
             return true;
-        }else if (teMajorJerarquiaQueElAnterior(tokens, i, 3,'^')){
+        } else if (teMajorJerarquiaQueElAnterior(tokens, i, 3, '^')) {
             return true;
-        }else if (teMajorJerarquiaQueElAnterior(tokens, i, 2,'/')) {
+        } else if (teMajorJerarquiaQueElAnterior(tokens, i, 2, '/')) {
             return true;
-        } else if (teMajorJerarquiaQueElAnterior(tokens, i, 2,'*')) {
+        } else if (teMajorJerarquiaQueElAnterior(tokens, i, 2, '*')) {
             return true;
-        } else if (teMajorJerarquiaQueElAnterior(tokens, i, 1,'-')) {
+        } else if (teMajorJerarquiaQueElAnterior(tokens, i, 1, '-')) {
             return true;
         } else return teMajorJerarquiaQueElAnterior(tokens, i, 1, '+');
     }
 
 
-    private static boolean teMajorJerarquiaQueElAnterior(Token[] tokens, int i, int nivellJerarquia,
-                                                         char character) {
+    private static boolean teMajorJerarquiaQueElAnterior(Token[] tokens, int i, int valorJerarquia, char character) {
         return tokens[i].getTk() == character && tokens.length - 1 > i + 2
-                && nivellJerarquia >= jerarquia(tokens[i + 2].getTk());
+                && valorJerarquia >= jerarquia(tokens[i + 2].getTk());
     }
 
     private static int jerarquia(char car) {
@@ -116,24 +122,23 @@ public class Evaluator {
 
     public static int calcRPN(Token[] list) {
         Stack<Integer> pilaDeNombres = new Stack<>();
-
+        int num1;
+        int num2;
         // Calcula el valor resultant d'avaluar la llista de tokens
         for (Token token : list) {
             if (token.getTtype() == Token.Toktype.NUMBER) {
                 pilaDeNombres.add(token.getValue());
             } else {
-                if (token.getTk() == '!'){
-                    int num2 = pilaDeNombres.pop();
-                    pilaDeNombres.add(operacio('*', num2, -1));
-                }else {
-                    int num1 = pilaDeNombres.pop();
-                    int num2 = pilaDeNombres.pop();
-                    pilaDeNombres.add(operacio(token.getTk(), num2, num1));
+                if (token.getTk() == '!') {
+                    num1 = pilaDeNombres.pop();
+                    pilaDeNombres.add(operacio('*', num1, -1));
+                } else {
+                    num2 = pilaDeNombres.pop();
+                    num1 = pilaDeNombres.pop();
+                    pilaDeNombres.add(operacio(token.getTk(), num1, num2));
                 }
             }
-            if (list.length == 1) {
-                break;
-            }
+            if (list.length == 1) break;
         }
         return pilaDeNombres.pop();
     }
