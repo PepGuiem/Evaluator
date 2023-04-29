@@ -6,27 +6,27 @@ public class Evaluator {
 
     public static int calculate(String expr) {
 
-        /* Bateria de variables utilitzades per a fer el caculate. */
+        /* Bateria de variables utilitzades per a fer el calculate. */
         Token[] tokens = Token.getTokens(expr);
         Stack<Token> operadors = new Stack<>();
         List<Token> nombres = new ArrayList<>();
         boolean posicioOp = false;
         int posParen = 0;
 
-        /* Bucle per a fer la conversio. */
+        /* Bucle per a fer la conversió. */
         for (int i = 0; i < tokens.length; i++) {
 
-            /* Si es un nombre. */
+            /* Si és un nombre. */
             if (tokens[i].getTtype() == Token.Toktype.NUMBER) {
                 nombres.add(tokens[i]);
                 posicioOp = afegirOperadorsPerOrdreDeJerarquia(tokens, operadors, nombres, posicioOp, i);
 
-                /* Si es un operador. */
+                /* Si és un operador. */
             } else if (tokens[i].getTtype() == Token.Toktype.OP) {
                 operadors.add(tokens[i]);
                 posicioOp = prioritats(tokens, i);
 
-                /* Si es un parentesis. */
+                /* Si és un parèntesi. */
             } else if (tokens[i].getTtype() == Token.Toktype.PAREN) {
                 operadors.add(tokens[i]);
                 posParen = afegirValorsDeParen(tokens, operadors, nombres, posParen, i);
