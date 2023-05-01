@@ -89,9 +89,9 @@ public class Token {
     /* Mostra un token (conversió a String)*/
     public String toString() {
         String resultat = "";
-        if (getTtype() == Toktype.NUMBER){
+        if (getTtype() == Toktype.NUMBER) {
             resultat += " " + getValue();
-        }else{
+        } else {
             resultat += " " + getTk();
         }
         return resultat;
@@ -121,11 +121,11 @@ public class Token {
             /*Si el character on som és un nombre.*/
             if (expr.charAt(i) - '0' >= 0 && expr.charAt(i) - '0' <= 9 && expr.charAt(i) != ' ') {
                 /*El anam sumant al string.*/
-                nombresEnString +=  expr.charAt(i);
+                nombresEnString += expr.charAt(i);
                 /*Si és un parenthesis.*/
             } else if (expr.charAt(i) == '(' || expr.charAt(i) == ')' && expr.charAt(i) != ' ') {
 
-                if (nombresEnString.length() > 0){
+                if (nombresEnString.length() > 0) {
                     /*Afegim el nombre a la llista.*/
                     llistaTokens.add(tokNumber(Integer.parseInt(nombresEnString)));
                     /*Fem que el string temporal torni a valer zero.*/
@@ -135,10 +135,10 @@ public class Token {
                 /*I afegim el parenthesis a la llista.*/
                 llistaTokens.add(tokParen(expr.charAt(i)));
                 /*En el cas de que no es complesqui res del anterior sabrem que es un operador.*/
-            } else if (expr.charAt(i) != ' '){
+            } else if (expr.charAt(i) != ' ') {
 
                 /*Si la longitud del string de nombres es major a 0*/
-                if (nombresEnString.length() > 0){
+                if (nombresEnString.length() > 0) {
                     /*Afegim el nombre a la llista.*/
                     llistaTokens.add(tokNumber(Integer.parseInt(nombresEnString)));
                     /*Fem que el string temporal torni a valer zero.*/
@@ -146,30 +146,26 @@ public class Token {
                 }
 
                 /*Si el caràcter és un - i no està en format RPN sabrem pot ser negatiu i farem el següent*/
-                if (expr.charAt(i) == '-' && noEstaEnRPN){
+                if (expr.charAt(i) == '-' && noEstaEnRPN) {
 
                     /*Si està a la primera posició sabrem que és negatiu i substituirem el caràcter per una !*/
-                    if (i == 0){
+                    if (i == 0) {
                         llistaTokens.add(tokOp('!'));
 
                         /*Si la funció ens retorna true substituirem el caràcter per una !*/
-                    }else if (negatiuEnElCasDeSiEsUnParentesi(expr, llistaTokens, i)){
+                    } else if (negatiuEnElCasDeSiEsUnParentesi(llistaTokens)) {
                         llistaTokens.add(tokOp('!'));
 
                         /*Si la funció ens retorna true substituirem el caràcter per una !*/
-                    }else if (negatiuEnElCasDeSiEsUnNombre(expr, llistaTokens, i)){
-                        llistaTokens.add(tokOp('!'));
-
-                        /*Si no, sabrem que és una simple resta i l'afegim directament*/
-                    }else{
+                    } else {
                         llistaTokens.add(tokOp(expr.charAt(i)));
                     }
-                }else{
+                } else {
                     /*Si no afegim l'operador a la llista.*/
                     llistaTokens.add(tokOp(expr.charAt(i)));
                 }
 
-            }else if (expr.charAt(i) == ' ' && nombresEnString.length() > 0){
+            } else if (expr.charAt(i) == ' ' && nombresEnString.length() > 0) {
                 /*Afegim el nombre a la llista.*/
                 llistaTokens.add(tokNumber(Integer.parseInt(nombresEnString)));
                 /*Fem que el string temporal torni a valer zero.*/
@@ -183,7 +179,7 @@ public class Token {
         }
 
         /*Posteriorment, afegim el nombre si en falta.*/
-        if (nombresEnString.length() > 0){
+        if (nombresEnString.length() > 0) {
             /*Afegim el nombre a la llista.*/
             llistaTokens.add(tokNumber(Integer.parseInt(nombresEnString)));
         }
@@ -193,21 +189,11 @@ public class Token {
         return llistaTokens.toArray(new Token[0]);
     }
 
-    /*Primer mira'm si ens permet mirar capa enrere, si ens dona el cas hem de tenir en compte el següent,
-    si l'anterior element de la llista és un operador o una obertura de parèntesis i el caràcter de darrere
-    és un parèntesi sabrem que és un parèntesi que és negatiu.*/
-    private static boolean negatiuEnElCasDeSiEsUnParentesi(String expr, List<Token> llistaTokens, int i) {
-        return i + 1 < expr.length() &&
-                llistaTokens.get(llistaTokens.size() - 1).getTtype() == Toktype.OP ||
-                llistaTokens.get(llistaTokens.size() - 1).getTk() == '('  && expr.charAt(i + 1) == '(';
+    /* Si l'anterior element de la llista és un operador o una obertura de parèntesis sabrem que és negatiu.*/
+    private static boolean negatiuEnElCasDeSiEsUnParentesi(List<Token> llistaTokens) {
+        return llistaTokens.get(llistaTokens.size() - 1).getTtype() == Toktype.OP ||
+                llistaTokens.get(llistaTokens.size() - 1).getTk() == '(';
     }
 
-    /*Primer mira'm si ens permet mirar capa enrere si ens dona el cas hem de tenir en compte el següent,
-     si l'anterior element de la llista no és un nombre i el caràcter de darrere és un nombre sabrem que
-     és negatiu.*/
-    private static boolean negatiuEnElCasDeSiEsUnNombre(String expr, List<Token> llistaTokens, int i) {
-        return i + 1 < expr.length() && llistaTokens.get(llistaTokens.size() - 1).getTtype() != Toktype.NUMBER
-                && expr.charAt(i + 1) - '0' >= 0 && expr.charAt(i + 1) - '0' <= 9 &&
-                llistaTokens.get(llistaTokens.size() - 1).getTk() != ')';
-    }
+
 }
